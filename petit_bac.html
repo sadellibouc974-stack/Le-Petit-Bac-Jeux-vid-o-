@@ -25,7 +25,6 @@
             text-align: center; position: relative; overflow: hidden;
         }
 
-        /* Animations */
         .screen { display: none; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .screen.active { display: block; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
@@ -33,7 +32,6 @@
         h1 { color: var(--primary); font-size: 2.8rem; margin-top: 0; margin-bottom: 10px; font-weight: 800;}
         h2 { color: var(--dark); margin-bottom: 25px; }
         
-        /* Boutons */
         button { 
             background: var(--primary); color: white; border: none; padding: 16px 32px; 
             border-radius: 14px; cursor: pointer; font-weight: bold; font-size: 1.1rem;
@@ -44,16 +42,16 @@
         .btn-success { background: var(--success); color: var(--dark); box-shadow: 0 6px 15px rgba(85, 230, 193, 0.3); }
         .btn-success:hover { background: #40d8b3; box-shadow: 0 8px 20px rgba(85, 230, 193, 0.4); }
         .btn-secondary { background: var(--secondary); box-shadow: 0 6px 15px rgba(0, 206, 201, 0.2); }
+        .btn-outline { background: transparent; color: var(--gray); border: 2px solid var(--gray); box-shadow: none; margin-top: 15px; }
+        .btn-outline:hover { background: #f1f2f6; color: var(--dark); border-color: var(--dark); }
         
         .mode-choice { display: flex; gap: 20px; justify-content: center; margin-top: 30px; flex-wrap: wrap; }
 
-        /* Règles */
         .rules-box {
             background: #f1f2f6; padding: 25px; border-radius: 16px; border-left: 5px solid var(--primary);
             text-align: left; margin: 20px auto; max-width: 650px; line-height: 1.6; font-size: 1.05rem;
         }
 
-        /* Cartes Configuration */
         .setup-card { 
             background: #f8f9fa; padding: 25px; border-radius: 16px; 
             margin-bottom: 20px; text-align: left; border: 1px solid #edf2f7;
@@ -72,7 +70,6 @@
         .checkbox-item:has(input:checked) { border-color: var(--primary); background: #f0eeff; color: var(--primary); }
         .checkbox-item input { margin-right: 10px; accent-color: var(--primary); width: 18px; height: 18px; }
 
-        /* Jeu */
         #letter-spinner { font-size: 7rem; font-weight: 900; color: var(--primary); margin: 40px 0; text-shadow: 0 10px 20px rgba(108,92,231,0.2); }
         .category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin: 30px 0; }
         .category-item label { display: block; font-weight: 800; margin-bottom: 8px; color: var(--primary); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
@@ -82,7 +79,6 @@
         }
         .category-item input:focus { border-color: var(--secondary); outline: none; box-shadow: 0 0 0 4px rgba(0,206,201,0.1); }
 
-        /* Arbitrage */
         .table-container { overflow-x: auto; margin-top: 20px; border-radius: 16px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: collapse; background: white; text-align: center; }
         th { background: var(--primary); color: white; padding: 18px; font-size: 1.1rem; white-space: nowrap; }
@@ -101,7 +97,6 @@
         .action-icon:hover { transform: scale(1.1); }
         .action-icon.active { filter: grayscale(0); transform: scale(1.25); }
 
-        /* Scores */
         .score-summary { background: var(--dark); color: white; padding: 20px; border-radius: 16px; margin-top: 25px; font-size: 1.2rem; display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; font-weight: bold; }
         .letter-badge { background: var(--primary); color: white; padding: 6px 16px; border-radius: 10px; font-weight: 900; font-size: 1.4rem; box-shadow: 0 4px 10px rgba(108,92,231,0.3);}
         #room-id-display { font-family: monospace; background: var(--primary); color:white; padding: 8px 15px; border-radius: 8px; font-size: 1.4rem; font-weight: bold;}
@@ -113,7 +108,6 @@
 <div class="container">
     <div id="screen-menu" class="screen active">
         <h1>🖊️ Le Petit Bac</h1>
-        
         <div class="rules-box">
             <h3 style="margin-top:0; color:var(--primary);">📜 Règles du jeu :</h3>
             <ul style="padding-left: 20px; margin-bottom: 0;">
@@ -124,7 +118,6 @@
                 <li><strong>Points :</strong> 10 pts (mot unique), 5 pts (doublon), 0 pt (invalide).</li>
             </ul>
         </div>
-
         <div class="mode-choice">
             <button onclick="chooseMode('solo')">👤 Mode Solo (avec Bots)</button>
             <button class="btn-secondary" onclick="chooseMode('multi')">🌐 Mode Multijoueur</button>
@@ -136,111 +129,90 @@
         <div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
             <div class="setup-card" style="flex: 1; min-width: 250px; text-align: center;">
                 <h3>Héberger une partie</h3>
-                <p style="color:#636e72; font-size:0.9rem;">Créez un salon et invitez vos amis.</p>
                 <button onclick="createRoom()">Créer un Salon</button>
             </div>
             <div class="setup-card" style="flex: 1; min-width: 250px; text-align: center;">
                 <h3>Rejoindre un ami</h3>
-                <input type="text" id="join-id" placeholder="Code à 4 chiffres (ex: 1234)" style="margin-bottom:15px; text-align:center; font-weight:bold; letter-spacing: 2px;">
+                <input type="text" id="join-id" placeholder="Code à 4 chiffres" style="margin-bottom:15px; text-align:center;">
                 <button class="btn-secondary" onclick="joinRoom()">Rejoindre</button>
             </div>
         </div>
-        <button style="background:none; color:#636e72; box-shadow:none; margin-top:10px;" onclick="showScreen('screen-menu')">Retour</button>
+        <button class="btn-outline" onclick="showScreen('screen-menu')">Retour au menu</button>
     </div>
 
     <div id="screen-lobby" class="screen">
         <h2>Salon d'attente</h2>
-        <p>Code à partager à vos amis : <span id="room-id-display"></span></p>
-        
+        <p>Code : <span id="room-id-display"></span></p>
         <div class="setup-card">
             <h3>Joueurs connectés :</h3>
-            <ul id="player-list" style="list-style:none; padding:0; font-size:1.2rem; font-weight:bold; color:var(--primary);"></ul>
+            <ul id="player-list" style="list-style:none; padding:0;"></ul>
         </div>
-        
-        <p id="lobby-wait-msg" style="font-style:italic; color:#636e72;">En attente de l'hôte pour configurer la partie...</p>
+        <p id="lobby-wait-msg">En attente de l'hôte...</p>
         <button class="btn-success" id="btn-host-start" style="display:none; width:100%;" onclick="hostStartSetup()">Configurer la partie ➡️</button>
+        <button class="btn-outline" onclick="location.reload()">Quitter</button>
     </div>
 
     <div id="screen-setup" class="screen">
-        <h2>Paramètres de la partie</h2>
-        
-        <div id="setup-wait-msg" style="display:none; padding: 40px; font-size:1.2rem; color:var(--primary); font-weight:bold;">
-            L'hôte est en train de choisir les thèmes... ⏳
-        </div>
-
+        <h2>Paramètres</h2>
+        <div id="setup-wait-msg" style="display:none;">L'hôte choisit les thèmes... ⏳</div>
         <div id="setup-controls">
             <div class="setup-card">
-                <label style="font-size:1.1rem; color:var(--primary);"><strong>Thèmes sélectionnés :</strong></label>
+                <label><strong>Thèmes :</strong></label>
                 <div id="setup-cat-list" class="checkbox-grid"></div>
                 <div style="display:flex; gap:10px; margin-top:15px;">
-                    <input type="text" id="custom-cat" placeholder="Ajouter un thème personnalisé...">
-                    <button class="btn-secondary" style="padding: 12px 20px;" onclick="addNewCategory()">+</button>
+                    <input type="text" id="custom-cat" placeholder="Thème perso...">
+                    <button class="btn-secondary" onclick="addNewCategory()">+</button>
                 </div>
             </div>
             <div class="setup-card" style="display:flex; gap:30px; flex-wrap:wrap;">
-                <div id="rounds-box" style="flex:1;">
-                    <label style="font-weight:bold;">Nombre de tours :</label><br><br>
+                <div style="flex:1;">
+                    <label>Tours :</label>
                     <input type="number" id="rounds-count" value="3" min="1">
                 </div>
                 <div id="bots-box" style="flex:1;">
-                    <label style="font-weight:bold;">Adversaires (Bots) :</label><br><br>
-                    <div style="display: flex; gap: 10px;">
-                        <select id="bot-count" style="flex: 1;">
-                            <option value="0">0</option>
-                            <option value="1">1 Bot</option>
-                            <option value="2" selected>2 Bots</option>
-                            <option value="3">3 Bots</option>
-                        </select>
-                        <select id="bot-difficulty" style="flex: 1;">
-                            <option value="easy">Facile</option>
-                            <option value="medium" selected>Moyen</option>
-                            <option value="hard">Difficile</option>
-                        </select>
-                    </div>
+                    <label>Bots :</label>
+                    <select id="bot-count"><option value="0">0</option><option value="2" selected>2 Bots</option></select>
                 </div>
             </div>
-            <button class="btn-success" style="width:100%; font-size:1.3rem;" onclick="initGame()">🔥 Lancer le Jeu !</button>
+            <button class="btn-success" style="width:100%;" onclick="initGame()">🔥 Lancer !</button>
+            <button class="btn-outline" style="width:100%;" onclick="goBackFromSetup()">Retour</button>
         </div>
     </div>
 
     <div id="screen-letter" class="screen">
         <h2>Tirage de la lettre...</h2>
-        <p id="spinner-instruction" style="color:#636e72; font-size:1.2rem;">C'est à <strong id="spinner-player-name" style="color:var(--primary);">...</strong> de stopper !</p>
+        <p id="spinner-instruction">C'est à <strong id="spinner-player-name">...</strong> de stopper !</p>
         <div id="letter-spinner">?</div>
-        <button class="btn-success" id="btn-stop-spinner" style="font-size:1.5rem; padding: 20px 50px;" onclick="stopSpinner()">STOP !</button>
+        <button class="btn-success" id="btn-stop-spinner" onclick="stopSpinner()">STOP !</button>
     </div>
 
     <div id="screen-game" class="screen">
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid #edf2f7; padding-bottom: 15px;">
-            <span style="font-size:1.3rem; font-weight:800; color:var(--dark);">Tour <span id="info-round">1</span> / <span id="info-total-rounds">3</span></span>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:800;">Tour <span id="info-round">1</span> / <span id="info-total-rounds">3</span></span>
             <span class="letter-badge" id="info-letter">?</span>
         </div>
         <div id="game-inputs" class="category-grid"></div>
-        <button class="btn-success" style="width:100%; font-size:1.4rem; padding:20px;" onclick="triggerFinish()">🚨 J'AI TOUT !</button>
-        <p id="bot-activity" style="font-style:italic; color:#b2bec3; margin-top:15px;"></p>
+        <button class="btn-success" style="width:100%; padding:20px;" onclick="triggerFinish()">🚨 J'AI TOUT !</button>
+        <p id="bot-activity" style="font-style:italic; color:#b2bec3;"></p>
     </div>
 
     <div id="screen-arbitrage" class="screen">
-        <h2>Validation - Lettre <span class="letter-badge" id="arb-letter" style="font-size:1.2rem; padding:4px 12px;">?</span></h2>
-        <div class="table-container">
-            <table id="arb-table"></table>
-        </div>
+        <h2>Validation - Lettre <span class="letter-badge" id="arb-letter">?</span></h2>
+        <div class="table-container"><table id="arb-table"></table></div>
         <div class="score-summary" id="arb-scores"></div>
         <button class="btn-success" style="margin-top:30px; width:100%;" id="btn-next-turn" onclick="confirmTurn()">Tour Suivant ➡️</button>
-        <p id="arb-wait-msg" style="display:none; color:#636e72; margin-top:20px; font-style:italic;">En attente de l'hôte pour passer au tour suivant...</p>
+        <p id="arb-wait-msg" style="display:none;">En attente de l'hôte...</p>
     </div>
 
     <div id="screen-final" class="screen">
         <h1>🏆 Résultats Finaux</h1>
-        <div class="table-container">
-            <table id="final-rank-table"></table>
-        </div>
-        <button class="btn-success" style="margin-top:30px; width:100%;" onclick="location.reload()">Rejouer une partie</button>
+        <div class="table-container"><table id="final-rank-table"></table></div>
+        <button class="btn-success" id="btn-play-again" style="margin-top:30px; width:100%;" onclick="playAgain()">Rejouer une partie</button>
+        <button class="btn-outline" style="width:100%;" onclick="location.reload()">Quitter</button>
     </div>
 </div>
 
 <script type="module">
-    // --- FIREBASE CONFIG (Ne pas modifier) ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set, onValue, update, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
@@ -258,18 +230,17 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // --- BANQUE DE MOTS & VARIABLES ---
     const BANK = {
-        "Prénom Fille": ["Alice", "Ambre", "Anna", "Béatrice", "Chloé", "Clara", "Diane", "Emma", "Fanny", "Hélène", "Inès", "Julie", "Léa", "Marie", "Nina", "Rose", "Zoé"],
-        "Prénom Garçon": ["Arthur", "Antoine", "Bastien", "Charles", "David", "Enzo", "Félix", "Gabriel", "Hugo", "Jules", "Léo", "Lucas", "Maxime", "Noé", "Paul", "Quentin", "Simon", "Thomas", "Victor"],
-        "Fruit ou Légume": ["Abricot", "Ananas", "Aubergine", "Banane", "Brocoli", "Carotte", "Cerise", "Datte", "Endive", "Fraise", "Framboise", "Haricot", "Kiwi", "Laitue", "Mangue", "Orange", "Poire", "Pomme", "Radis", "Salade"],
-        "Pays ou Ville": ["Alger", "Angers", "Belgique", "Berlin", "Canada", "Chine", "Danemark", "Espagne", "France", "Finlande", "Grèce", "Italie", "Japon", "Lyon", "Maroc", "Marseille", "Norvège", "Paris", "Pérou", "Rome", "Suisse"],
-        "Objet": ["Assiette", "Ampoule", "Brosse", "Bouteille", "Cahier", "Crayon", "Drap", "Eponge", "Feuille", "Gomme", "Horloge", "Lampe", "Miroir", "Ordinateur", "Papier", "Sac", "Table", "Vase"],
-        "Animaux": ["Aigle", "Ane", "Baleine", "Blaireau", "Chat", "Chien", "Dauphin", "Eléphant", "Escargot", "Fourmi", "Girafe", "Hamster", "Iguane", "Jaguar", "Kangourou", "Lion", "Loup", "Ours", "Panda", "Requin", "Singe", "Tigre", "Zèbre"],
-        "Métier": ["Acteur", "Avocat", "Boucher", "Boulanger", "Coiffeur", "Cuisinier", "Dentiste", "Docteur", "Facteur", "Fleuriste", "Garagiste", "Infirmier", "Jardinier", "Maçon", "Pilote", "Serveur", "Vendeur"],
-        "Marque": ["Adidas", "Apple", "Audi", "BMW", "Bic", "Citroën", "Coca", "Dior", "Dell", "Evian", "Ford", "Ferrari", "Google", "Honda", "Ikea", "Microsoft", "Nike", "Nintendo", "Peugeot", "Renault", "Samsung", "Sony", "Toyota"],
-        "Couleur": ["Azur", "Argent", "Blanc", "Bleu", "Beige", "Cyan", "Chocolat", "Doré", "Gris", "Indigo", "Ivoire", "Jaune", "Kaki", "Lilas", "Mauve", "Marron", "Noir", "Orange", "Rose", "Rouge", "Vert", "Violet"],
-        "Anatomie": ["Artère", "Abdomen", "Bras", "Bouche", "Cœur", "Crâne", "Dos", "Dents", "Epaule", "Estomac", "Foie", "Genou", "Gorge", "Hanche", "Jambe", "Joue", "Lèvre", "Langue", "Main", "Nez", "Oeil", "Oreille", "Pied", "Poumon", "Tête", "Ventre"]
+        "Prénom Fille": ["Alice", "Ambre", "Anna", "Chloé", "Emma", "Inès", "Léa", "Marie", "Zoé"],
+        "Prénom Garçon": ["Arthur", "Enzo", "Hugo", "Jules", "Léo", "Lucas", "Paul", "Thomas"],
+        "Fruit ou Légume": ["Ananas", "Banane", "Carotte", "Fraise", "Haricot", "Kiwi", "Orange", "Pomme"],
+        "Pays ou Ville": ["Alger", "Berlin", "Canada", "Espagne", "France", "Italie", "Japon", "Paris"],
+        "Objet": ["Assiette", "Brosse", "Cahier", "Lampe", "Miroir", "Ordinateur", "Sac", "Table"],
+        "Animaux": ["Chat", "Chien", "Dauphin", "Eléphant", "Girafe", "Lion", "Ours", "Singe", "Tigre"],
+        "Métier": ["Avocat", "Boulanger", "Coiffeur", "Docteur", "Infirmier", "Maçon", "Pilote", "Vendeur"],
+        "Marque": ["Adidas", "Apple", "Audi", "Coca", "Ikea", "Nike", "Nintendo", "Sony"],
+        "Couleur": ["Blanc", "Bleu", "Gris", "Jaune", "Noir", "Orange", "Rose", "Rouge", "Vert"],
+        "Anatomie": ["Bras", "Bouche", "Cœur", "Dos", "Jambe", "Main", "Nez", "Oeil", "Pied"]
     };
 
     let categories = Object.keys(BANK);
@@ -279,10 +250,9 @@
         playerName: "Joueur",
         players: [], currentRound: 1, totalRounds: 3, letter: '', 
         activeCats: [], spinnerTimer: null, botTimers: [],
-        botDifficulty: 'medium'
+        botDifficulty: 'medium', hasSubmitted: false
     };
 
-    // --- NAVIGATION & UI GLOBALE ---
     window.showScreen = (id) => {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
@@ -290,9 +260,8 @@
 
     window.chooseMode = (m) => {
         state.isMulti = (m === 'multi');
-        if(state.isMulti) {
-            showScreen('screen-multi-choice');
-        } else {
+        if(state.isMulti) showScreen('screen-multi-choice');
+        else {
             document.getElementById('bots-box').style.display = 'block';
             document.getElementById('setup-controls').style.display = 'block';
             document.getElementById('setup-wait-msg').style.display = 'none';
@@ -301,38 +270,31 @@
         }
     };
 
-    // --- SETUP SOLO & COMMUN ---
+    window.goBackFromSetup = () => {
+        if(state.isMulti) showScreen('screen-lobby');
+        else showScreen('screen-menu');
+    };
+
     function renderSetupCats() {
         const div = document.getElementById('setup-cat-list');
         div.innerHTML = categories.map((c, i) => `
-            <label class="checkbox-item" for="cat-${i}">
-                <input type="checkbox" id="cat-${i}" checked value="${c}"> ${c}
-            </label>
+            <label class="checkbox-item"><input type="checkbox" id="cat-${i}" checked value="${c}"> ${c}</label>
         `).join('');
     }
 
     window.addNewCategory = () => {
         const val = document.getElementById('custom-cat').value.trim();
-        if(val && !categories.includes(val)) {
-            categories.push(val); 
-            renderSetupCats();
-            document.getElementById('custom-cat').value = '';
-        }
+        if(val && !categories.includes(val)) { categories.push(val); renderSetupCats(); document.getElementById('custom-cat').value = ''; }
     };
 
-    // --- MULTIJOUEUR : LOBBY & REJOINDRE ---
     window.createRoom = () => {
         state.playerName = prompt("Ton pseudo :") || "Hôte";
         state.isHost = true;
         state.roomId = Math.floor(1000 + Math.random() * 8999).toString();
-        
         set(ref(db, 'rooms/' + state.roomId), {
-            status: 'lobby',
-            hostId: state.playerId,
-            round: 1,
+            status: 'lobby', hostId: state.playerId, round: 1,
             players: { [state.playerId]: { name: state.playerName, score: 0 } }
         });
-
         document.getElementById('room-id-display').innerText = state.roomId;
         document.getElementById('btn-host-start').style.display = 'block';
         document.getElementById('lobby-wait-msg').style.display = 'none';
@@ -343,65 +305,47 @@
     window.joinRoom = () => {
         const id = document.getElementById('join-id').value.trim();
         if(!id) return alert("Code requis");
-        
         get(ref(db, `rooms/${id}`)).then((snapshot) => {
             if(snapshot.exists()) {
-                state.roomId = id;
-                state.isHost = false;
+                const data = snapshot.val();
+                if (data.status !== 'lobby') return alert("Partie déjà commencée !");
+                state.roomId = id; state.isHost = false;
                 state.playerName = prompt("Ton pseudo :") || "Joueur";
-                
                 update(ref(db, `rooms/${state.roomId}/players/${state.playerId}`), { name: state.playerName, score: 0 });
-                
                 document.getElementById('room-id-display').innerText = state.roomId;
                 document.getElementById('btn-host-start').style.display = 'none';
                 document.getElementById('lobby-wait-msg').style.display = 'block';
                 initMultiplayerListeners();
                 showScreen('screen-lobby');
-            } else {
-                alert("Salon introuvable !");
-            }
+            } else alert("Salon introuvable !");
         });
     };
 
     function initMultiplayerListeners() {
         onValue(ref(db, `rooms/${state.roomId}`), (snapshot) => {
-            const data = snapshot.val();
-            if(!data) return;
-
-            // Mise à jour liste joueurs
+            const data = snapshot.val(); if(!data) return;
             if(data.players) {
                 const list = document.getElementById('player-list');
-                list.innerHTML = Object.entries(data.players).map(([id, p]) => 
-                    `<li>${p.name} ${id === data.hostId ? '<span class="host-badge">Hôte</span>' : ''}</li>`
-                ).join('');
+                list.innerHTML = Object.entries(data.players).map(([id, p]) => `<li>${p.name} ${id === data.hostId ? '<span class="host-badge">Hôte</span>' : ''}</li>`).join('');
             }
-
-            // Routeur d'états Multi
-            if (data.status === 'setup' && !state.isHost) {
+            if(data.status === 'lobby') showScreen('screen-lobby');
+            else if (data.status === 'setup' && !state.isHost) {
                 document.getElementById('setup-controls').style.display = 'none';
                 document.getElementById('setup-wait-msg').style.display = 'block';
                 showScreen('screen-setup');
             } 
             else if (data.status === 'spinning') {
-                state.activeCats = data.config.cats;
-                state.totalRounds = data.config.rounds;
-                state.currentRound = data.round;
+                state.activeCats = data.config.cats; state.totalRounds = data.config.rounds; state.currentRound = data.round;
                 startSpinnerUI(data.spinnerPlayerId, data.players[data.spinnerPlayerId].name);
             } 
-            else if (data.status === 'playing') {
-                state.letter = data.currentLetter;
-                stopSpinnerUI();
-            } 
+            else if (data.status === 'playing') { state.letter = data.currentLetter; stopSpinnerUI(); } 
             else if (data.status === 'arbitrage') {
-                // S'assurer d'envoyer nos mots si on ne l'a pas fait
-                forceSubmitWords(); 
-                state.multiPlayersData = data.players; // Stocke la data brute
+                // IMPORTANT : On s'assure d'avoir soumis nos propres mots avant d'afficher le tableau
+                if(!state.hasSubmitted) forceSubmitWords(); 
+                state.multiPlayersData = data.players;
                 renderArbitrageTableMulti(data.players);
             }
-            else if (data.status === 'final') {
-                state.multiPlayersData = data.players;
-                showFinalRankingMulti(data.players);
-            }
+            else if (data.status === 'final') { state.multiPlayersData = data.players; showFinalRankingMulti(data.players); }
         });
     }
 
@@ -409,32 +353,24 @@
         update(ref(db, `rooms/${state.roomId}`), { status: 'setup' });
         document.getElementById('setup-controls').style.display = 'block';
         document.getElementById('setup-wait-msg').style.display = 'none';
-        document.getElementById('bots-box').style.display = 'none'; // Pas de bots en multi
+        document.getElementById('bots-box').style.display = 'none';
         renderSetupCats();
         showScreen('screen-setup');
     };
 
-    // --- LANCEMENT JEU (SOLO ou MULTI) ---
     window.initGame = () => {
         state.activeCats = Array.from(document.querySelectorAll('#setup-cat-list input:checked')).map(i => i.value);
         if(state.activeCats.length === 0) return alert("Choisis au moins un thème !");
-        
         state.totalRounds = parseInt(document.getElementById('rounds-count').value);
         state.currentRound = 1;
-        state.botDifficulty = document.getElementById('bot-difficulty').value;
-
         if(state.isMulti && state.isHost) {
             get(ref(db, `rooms/${state.roomId}/players`)).then((snap) => {
                 const pIds = Object.keys(snap.val());
-                const randomId = pIds[Math.floor(Math.random() * pIds.length)]; // Joueur au hasard
                 update(ref(db, `rooms/${state.roomId}`), { 
-                    status: 'spinning',
-                    spinnerPlayerId: randomId,
-                    config: { cats: state.activeCats, rounds: state.totalRounds }
+                    status: 'spinning', spinnerPlayerId: pIds[0], config: { cats: state.activeCats, rounds: state.totalRounds }
                 });
             });
         } else if (!state.isMulti) {
-            // Configuration SOLO
             state.players = [{ id: 'P1', name: 'Vous', score: 0, answers: [], isBot: false }];
             const bots = parseInt(document.getElementById('bot-count').value);
             for(let i=1; i<=bots; i++) state.players.push({ id: 'B'+i, name: 'Bot '+i, score: 0, answers: [], isBot: true });
@@ -442,163 +378,100 @@
         }
     };
 
-    // --- SPINNER ---
     function startSpinnerUI(spinnerPlayerId, spinnerName) {
         showScreen('screen-letter');
         const btn = document.getElementById('btn-stop-spinner');
-        
-        // Seul le joueur désigné peut voir le bouton STOP
         if(state.isMulti && state.playerId !== spinnerPlayerId) {
             btn.style.display = 'none';
-            document.getElementById('spinner-instruction').innerHTML = `C'est à <strong style="color:var(--primary);">${spinnerName}</strong> de stopper !`;
+            document.getElementById('spinner-instruction').innerHTML = `C'est à <strong>${spinnerName}</strong> de stopper !`;
         } else {
             btn.style.display = 'inline-block';
-            document.getElementById('spinner-instruction').innerHTML = "À toi de jouer, clique sur <strong>STOP</strong> !";
+            document.getElementById('spinner-instruction').innerHTML = "À toi de jouer !";
         }
-
         const alpha = "ABCDEFGHIJKLMNOPQRSTV"; let i = 0;
         if(state.spinnerTimer) clearInterval(state.spinnerTimer);
-        state.spinnerTimer = setInterval(() => { 
-            document.getElementById('letter-spinner').innerText = alpha[i % alpha.length]; 
-            i++; 
-        }, 60);
+        state.spinnerTimer = setInterval(() => { document.getElementById('letter-spinner').innerText = alpha[i % alpha.length]; i++; }, 60);
     }
 
     window.stopSpinner = () => {
-        if(state.isMulti) {
-            const letter = document.getElementById('letter-spinner').innerText;
-            update(ref(db, `rooms/${state.roomId}`), { status: 'playing', currentLetter: letter });
-        } else {
-            state.letter = document.getElementById('letter-spinner').innerText;
-            stopSpinnerUI();
-        }
+        if(state.isMulti) update(ref(db, `rooms/${state.roomId}`), { status: 'playing', currentLetter: document.getElementById('letter-spinner').innerText });
+        else { state.letter = document.getElementById('letter-spinner').innerText; stopSpinnerUI(); }
     };
 
     function stopSpinnerUI() {
         clearInterval(state.spinnerTimer);
         document.getElementById('letter-spinner').innerText = state.letter;
-        
         setTimeout(() => {
             document.getElementById('info-letter').innerText = state.letter;
             document.getElementById('info-round').innerText = state.currentRound;
             document.getElementById('info-total-rounds').innerText = state.totalRounds;
-            
             const area = document.getElementById('game-inputs');
             area.innerHTML = state.activeCats.map((c, i) => `
-                <div class="category-item">
-                    <label>${c}</label>
-                    <input type="text" id="in-${i}" autocomplete="off" placeholder="...">
-                </div>
+                <div class="category-item"><label>${c}</label><input type="text" id="in-${i}" autocomplete="off"></div>
             `).join('');
-            
-            showScreen('screen-game');
-            state.hasSubmitted = false; // Reset statut de soumission
-            
+            showScreen('screen-game'); state.hasSubmitted = false;
             if(!state.isMulti) startBotsSolo();
         }, 800);
     }
 
-    // --- LOGIQUE JEU EN COURS (BOTS REGLÉS) ---
     function startBotsSolo() {
-        document.getElementById('bot-activity').innerText = state.players.some(p => p.isBot) ? "Les bots écrivent doucement..." : "";
         state.players.forEach(p => {
-            if(p.isBot) {
-                // Temps de réflexion beaucoup plus longs
-                let baseTime = 25000; // Moyen : 25-40 sec
-                let randTime = 15000;
-                
-                if(state.botDifficulty === 'easy') { 
-                    baseTime = 40000; // Facile : 40-60 sec
-                    randTime = 20000; 
-                }
-                else if(state.botDifficulty === 'hard') { 
-                    baseTime = 15000; // Hard : 15-25 sec (plus de blitz)
-                    randTime = 10000; 
-                }
-
-                p.botTimer = setTimeout(() => { 
-                    if(document.getElementById('screen-game').classList.contains('active')) triggerFinishSolo(); 
-                }, baseTime + Math.random() * randTime);
-            }
+            if(p.isBot) p.botTimer = setTimeout(() => { if(document.getElementById('screen-game').classList.contains('active')) triggerFinishSolo(); }, 20000 + Math.random() * 10000);
         });
     }
 
-    window.triggerFinish = () => {
+    // --- CORRECTION : forceSubmit avant de changer de statut ---
+    window.triggerFinish = async () => {
         if(state.hasSubmitted) return;
         if(state.isMulti) {
-            forceSubmitWords();
+            await forceSubmitWords(); // On attend que Firebase enregistre
             update(ref(db, `rooms/${state.roomId}`), { status: 'arbitrage' });
-        } else {
-            triggerFinishSolo();
-        }
+        } else triggerFinishSolo();
     };
 
-    function triggerFinishSolo() {
-        state.players.forEach(p => clearTimeout(p.botTimer));
-        state.players.forEach(p => {
-            if(!p.isBot) {
-                p.answers = state.activeCats.map((_, i) => document.getElementById('in-'+i).value.trim());
-            } else {
-                let failChance = 0.25;
-                if(state.botDifficulty === 'easy') failChance = 0.50;
-                else if(state.botDifficulty === 'hard') failChance = 0.10;
+    async function forceSubmitWords() {
+        if(state.hasSubmitted) return;
+        state.hasSubmitted = true;
+        const answers = state.activeCats.map((_, i) => document.getElementById('in-'+i).value.trim());
+        const statusArr = answers.map(w => (w && w.toUpperCase().startsWith(state.letter)) ? 1 : 0);
+        // On renvoie une promesse pour s'assurer que c'est fini
+        return update(ref(db, `rooms/${state.roomId}/players/${state.playerId}`), { answers, statusArr });
+    }
 
-                p.answers = state.activeCats.map(c => {
-                    const list = BANK[c] ? BANK[c].filter(w => w.toUpperCase().startsWith(state.letter)) : [];
-                    return (list.length > 0 && Math.random() > failChance) ? list[Math.floor(Math.random()*list.length)] : "";
-                });
-            }
+    function triggerFinishSolo() {
+        state.players.forEach(p => {
+            if(!p.isBot) p.answers = state.activeCats.map((_, i) => document.getElementById('in-'+i).value.trim());
+            else p.answers = state.activeCats.map(c => {
+                const list = BANK[c] ? BANK[c].filter(w => w.toUpperCase().startsWith(state.letter)) : [];
+                return (list.length > 0 && Math.random() > 0.3) ? list[Math.floor(Math.random()*list.length)] : "";
+            });
             p.statusArr = p.answers.map(w => (w && w.toUpperCase().startsWith(state.letter)) ? 1 : 0);
         });
         renderArbitrageTableSolo();
     }
 
-    function forceSubmitWords() {
-        if(state.hasSubmitted || !document.getElementById('screen-game').classList.contains('active')) return;
-        state.hasSubmitted = true;
-        const answers = state.activeCats.map((_, i) => {
-            const el = document.getElementById('in-'+i);
-            return el ? el.value.trim() : "";
-        });
-        const statusArr = answers.map(w => (w && w.toUpperCase().startsWith(state.letter)) ? 1 : 0);
-        
-        update(ref(db, `rooms/${state.roomId}/players/${state.playerId}`), { answers, statusArr });
-    }
-
-    // --- ARBITRAGE ---
     function renderArbitrageTableMulti(playersObj) {
         showScreen('screen-arbitrage');
         document.getElementById('arb-letter').innerText = state.letter;
-        
         const btnNext = document.getElementById('btn-next-turn');
         const waitMsg = document.getElementById('arb-wait-msg');
-        
-        if(state.isHost) {
-            btnNext.style.display = 'block'; waitMsg.style.display = 'none';
-        } else {
-            btnNext.style.display = 'none'; waitMsg.style.display = 'block';
-        }
+        if(state.isHost) { btnNext.style.display = 'block'; waitMsg.style.display = 'none'; } 
+        else { btnNext.style.display = 'none'; waitMsg.style.display = 'block'; }
 
         const pKeys = Object.keys(playersObj);
         let html = `<tr><th>Thème</th>` + pKeys.map(id => `<th>${playersObj[id].name}</th>`).join('') + `</tr>`;
-        
         state.activeCats.forEach((cat, cIdx) => {
             html += `<tr><td><strong>${cat}</strong></td>`;
             pKeys.forEach((pId) => {
                 const p = playersObj[pId];
                 const ans = (p.answers && p.answers[cIdx]) ? p.answers[cIdx] : '---';
                 const s = (p.statusArr && p.statusArr[cIdx] !== undefined) ? p.statusArr[cIdx] : 0;
-                
                 const sClass = s === 0 ? 'status-invalid' : (s === 1 ? 'status-pending' : 'status-valid');
-                html += `<td>
-                    <div class="word-cell ${sClass}">
-                        <span class="word-text">${ans}</span>
-                        <div class="controls">
-                            <span class="action-icon ${s===2?'active':''}" onclick="setWordStatusMulti('${pId}',${cIdx},2)">✅</span>
-                            <span class="action-icon ${s===0?'active':''}" onclick="setWordStatusMulti('${pId}',${cIdx},0)">❌</span>
-                        </div>
-                    </div>
-                </td>`;
+                html += `<td><div class="word-cell ${sClass}"><span class="word-text">${ans}</span>
+                    <div class="controls">
+                        <span class="action-icon ${s===2?'active':''}" onclick="setWordStatusMulti('${pId}',${cIdx},2)">✅</span>
+                        <span class="action-icon ${s===0?'active':''}" onclick="setWordStatusMulti('${pId}',${cIdx},0)">❌</span>
+                    </div></div></td>`;
             });
             html += `</tr>`;
         });
@@ -606,22 +479,17 @@
         calcScoresMulti(playersObj);
     }
 
-    window.setWordStatusMulti = (pId, cIdx, val) => {
-        update(ref(db, `rooms/${state.roomId}/players/${pId}/statusArr/${cIdx}`), val);
-    };
+    window.setWordStatusMulti = (pId, cIdx, val) => { update(ref(db, `rooms/${state.roomId}/players/${pId}/statusArr/${cIdx}`), val); };
 
     function calcScoresMulti(playersObj) {
-        let turnScores = {};
-        Object.keys(playersObj).forEach(id => turnScores[id] = 0);
-
+        let turnScores = {}; Object.keys(playersObj).forEach(id => turnScores[id] = 0);
         state.activeCats.forEach((_, cIdx) => {
             let matches = {};
             Object.keys(playersObj).forEach(pId => {
                 const p = playersObj[pId];
                 if(p.statusArr && p.statusArr[cIdx] === 2) {
                     let w = p.answers[cIdx].toLowerCase().trim();
-                    if(!matches[w]) matches[w] = [];
-                    matches[w].push(pId);
+                    if(!matches[w]) matches[w] = []; matches[w].push(pId);
                 }
             });
             for(let w in matches) {
@@ -637,26 +505,17 @@
     function renderArbitrageTableSolo() {
         showScreen('screen-arbitrage');
         document.getElementById('arb-letter').innerText = state.letter;
-        document.getElementById('arb-wait-msg').style.display = 'none';
-        document.getElementById('btn-next-turn').style.display = 'block';
-
         let html = `<tr><th>Thème</th>` + state.players.map(p => `<th>${p.name}</th>`).join('') + `</tr>`;
-        
         state.activeCats.forEach((cat, cIdx) => {
             html += `<tr><td><strong>${cat}</strong></td>`;
             state.players.forEach((p, pIdx) => {
-                const s = p.statusArr[cIdx];
-                const ans = p.answers[cIdx] || '---';
+                const s = p.statusArr[cIdx]; const ans = p.answers[cIdx] || '---';
                 const sClass = s === 0 ? 'status-invalid' : (s === 1 ? 'status-pending' : 'status-valid');
-                html += `<td>
-                    <div class="word-cell ${sClass}">
-                        <span class="word-text">${ans}</span>
-                        <div class="controls">
-                            <span class="action-icon ${s===2?'active':''}" onclick="setWordStatusSolo(${pIdx},${cIdx},2)">✅</span>
-                            <span class="action-icon ${s===0?'active':''}" onclick="setWordStatusSolo(${pIdx},${cIdx},0)">❌</span>
-                        </div>
-                    </div>
-                </td>`;
+                html += `<td><div class="word-cell ${sClass}"><span class="word-text">${ans}</span>
+                    <div class="controls">
+                        <span class="action-icon ${s===2?'active':''}" onclick="setWordStatusSolo(${pIdx},${cIdx},2)">✅</span>
+                        <span class="action-icon ${s===0?'active':''}" onclick="setWordStatusSolo(${pIdx},${cIdx},0)">❌</span>
+                    </div></div></td>`;
             });
             html += `</tr>`;
         });
@@ -664,10 +523,7 @@
         calcScoresSolo();
     }
 
-    window.setWordStatusSolo = (pIdx, cIdx, val) => {
-        state.players[pIdx].statusArr[cIdx] = val;
-        renderArbitrageTableSolo();
-    };
+    window.setWordStatusSolo = (pIdx, cIdx, val) => { state.players[pIdx].statusArr[cIdx] = val; renderArbitrageTableSolo(); };
 
     function calcScoresSolo() {
         let turnScores = state.players.map(() => 0);
@@ -676,13 +532,11 @@
             state.players.forEach((p, pIdx) => {
                 if(p.statusArr[cIdx] === 2) {
                     let w = p.answers[cIdx].toLowerCase().trim();
-                    if(!matches[w]) matches[w] = [];
-                    matches[w].push(pIdx);
+                    if(!matches[w]) matches[w] = []; matches[w].push(pIdx);
                 }
             });
             for(let w in matches) {
-                let ids = matches[w];
-                let pts = ids.length === 1 ? 10 : (ids.length === 2 ? 5 : 0);
+                let ids = matches[w]; let pts = ids.length === 1 ? 10 : (ids.length === 2 ? 5 : 0);
                 ids.forEach(id => turnScores[id] += pts);
             }
         });
@@ -690,55 +544,47 @@
         document.getElementById('arb-scores').innerHTML = state.players.map((p, i) => `<span>${p.name}: <b>${turnScores[i]}</b> pts</span>`).join('');
     }
 
-    // --- FIN DE TOUR ET RESULTATS ---
     window.confirmTurn = () => {
         if(state.isMulti && state.isHost) {
-            // Sauvegarder les scores finaux du tour en DB
             let updates = {};
             Object.keys(state.multiPlayersData).forEach(id => {
-                const newScore = state.multiPlayersData[id].score + state.tempMultiScores[id];
-                updates[`rooms/${state.roomId}/players/${id}/score`] = newScore;
+                updates[`rooms/${state.roomId}/players/${id}/score`] = state.multiPlayersData[id].score + state.tempMultiScores[id];
                 updates[`rooms/${state.roomId}/players/${id}/answers`] = null;
                 updates[`rooms/${state.roomId}/players/${id}/statusArr`] = null;
             });
-            
             update(ref(db), updates).then(() => {
                 if(state.currentRound < state.totalRounds) {
-                    const pIds = Object.keys(state.multiPlayersData);
-                    const randomId = pIds[Math.floor(Math.random() * pIds.length)];
-                    update(ref(db, `rooms/${state.roomId}`), { 
-                        status: 'spinning', round: state.currentRound + 1, spinnerPlayerId: randomId
-                    });
-                } else {
-                    update(ref(db, `rooms/${state.roomId}`), { status: 'final' });
-                }
+                    const randomId = Object.keys(state.multiPlayersData)[0];
+                    update(ref(db, `rooms/${state.roomId}`), { status: 'spinning', round: state.currentRound + 1, spinnerPlayerId: randomId });
+                } else update(ref(db, `rooms/${state.roomId}`), { status: 'final' });
             });
-
         } else if (!state.isMulti) {
             state.players.forEach((p, i) => p.score += state.tempSoloScores[i]);
-            if(state.currentRound < state.totalRounds) {
-                state.currentRound++;
-                startSpinnerUI('P1', 'Vous');
-            } else {
-                showFinalRankingSolo();
-            }
+            if(state.currentRound < state.totalRounds) { state.currentRound++; startSpinnerUI('P1', 'Vous'); } 
+            else showFinalRankingSolo();
         }
+    };
+
+    window.playAgain = () => {
+        if(state.isMulti) {
+            let updates = { status: 'lobby', round: 1 };
+            Object.keys(state.multiPlayersData).forEach(id => { updates[`players/${id}/score`] = 0; });
+            update(ref(db, `rooms/${state.roomId}`), updates);
+        } else location.reload();
     };
 
     function showFinalRankingMulti(playersObj) {
         showScreen('screen-final');
+        if(!state.isHost) document.getElementById('btn-play-again').style.display = 'none';
         const sorted = Object.values(playersObj).sort((a,b) => b.score - a.score);
-        document.getElementById('final-rank-table').innerHTML = `<tr><th>Rang</th><th>Nom</th><th>Score Total</th></tr>` + 
-            sorted.map((p, i) => `<tr><td>${i===0?'🥇':(i===1?'🥈':(i===2?'🥉':i+1))}</td><td style="font-weight:bold; font-size:1.2rem;">${p.name}</td><td><b>${p.score}</b> pts</td></tr>`).join('');
+        document.getElementById('final-rank-table').innerHTML = `<tr><th>Rang</th><th>Nom</th><th>Score</th></tr>` + sorted.map((p, i) => `<tr><td>${i+1}</td><td>${p.name}</td><td>${p.score}</td></tr>`).join('');
     }
 
     function showFinalRankingSolo() {
         showScreen('screen-final');
         const sorted = [...state.players].sort((a,b) => b.score - a.score);
-        document.getElementById('final-rank-table').innerHTML = `<tr><th>Rang</th><th>Nom</th><th>Score Total</th></tr>` + 
-            sorted.map((p, i) => `<tr><td>${i===0?'🥇':(i===1?'🥈':(i===2?'🥉':i+1))}</td><td style="font-weight:bold; font-size:1.2rem;">${p.name}</td><td><b>${p.score}</b> pts</td></tr>`).join('');
+        document.getElementById('final-rank-table').innerHTML = `<tr><th>Rang</th><th>Nom</th><th>Score</th></tr>` + sorted.map((p, i) => `<tr><td>${i+1}</td><td>${p.name}</td><td>${p.score}</td></tr>`).join('');
     }
-
 </script>
 </body>
 </html>
