@@ -171,7 +171,19 @@
                 </div>
                 <div id="bots-box" style="flex:1;">
                     <label>Bots :</label>
-                    <select id="bot-count"><option value="0">0</option><option value="2" selected>2 Bots</option></select>
+                    <select id="bot-count">
+                        <option value="0">0</option>
+                        <option value="1">1 Bot</option>
+                        <option value="2" selected>2 Bots</option>
+                        <option value="3">3 Bots</option>
+                        <option value="4">4 Bots</option>
+                    </select>
+                    <label style="margin-top:10px; display:block;">Difficulté :</label>
+                    <select id="bot-difficulty">
+                        <option value="easy">Facile</option>
+                        <option value="medium" selected>Normal</option>
+                        <option value="hard">Difficile</option>
+                    </select>
                 </div>
             </div>
             <button class="btn-success" style="width:100%;" onclick="initGame()">🔥 Lancer !</button>
@@ -251,7 +263,7 @@
         players: [], currentRound: 1, totalRounds: 3, letter: '', 
         activeCats: [], spinnerTimer: null, gameStartTimeout: null,
         botDifficulty: 'medium', hasSubmitted: false, currentStatus: 'lobby',
-        lastPlayerList: []
+        lastPlayerList: [], usedLetters: []
     };
 
     window.showScreen = (id) => {
@@ -295,7 +307,8 @@
         const roomRef = ref(db, 'rooms/' + state.roomId);
         set(roomRef, {
             status: 'lobby', hostId: state.playerId, round: 1,
-            players: { [state.playerId]: { name: state.playerName, score: 0 } }
+            players: { [state.playerId]: { name: state.playerName, score: 0 } },
+            usedLetters: []
         });
         onDisconnect(ref(db, `rooms/${state.roomId}/players/${state.playerId}`)).remove();
         document.getElementById('room-id-display').innerText = state.roomId;
@@ -331,6 +344,7 @@
             
             const prevStatus = state.currentStatus;
             state.currentStatus = data.status;
+            state.usedLetters = data.usedLetters || [];
 
             if(data.players) {
                 const currentPlayers = Object.keys(data.players);
@@ -354,7 +368,6 @@
             } 
             else if (data.status === 'playing') { 
                 state.letter = data.currentLetter; 
-                // PROTECTION ANTI-EFFACEMENT : Ne pas relancer stopSpinnerUI si on est déjà en train de jouer
                 if (prevStatus !== 'playing') {
                     stopSpinnerUI(); 
                 }
@@ -387,14 +400,16 @@
         if(state.activeCats.length === 0) return alert("Choisis au moins un thème !");
         state.totalRounds = parseInt(document.getElementById('rounds-count').value);
         state.currentRound = 1;
+        state.usedLetters = [];
         if(state.isMulti && state.isHost) {
             get(ref(db, `rooms/${state.roomId}/players`)).then((snap) => {
                 const pIds = Object.keys(snap.val());
                 update(ref(db, `rooms/${state.roomId}`), { 
-                    status: 'spinning', spinnerPlayerId: pIds[0], config: { cats: state.activeCats, rounds: state.totalRounds }
+                    status: 'spinning', spinnerPlayerId: pIds[0], config: { cats: state.activeCats, rounds: state.totalRounds }, usedLetters: []
                 });
             });
         } else if (!state.isMulti) {
+            state.botDifficulty = document.getElementById('bot-difficulty').value;
             state.players = [{ id: 'P1', name: 'Vous', score: 0, answers: [], isBot: false }];
             const bots = parseInt(document.getElementById('bot-count').value);
             for(let i=1; i<=bots; i++) state.players.push({ id: 'B'+i, name: 'Bot '+i, score: 0, answers: [], isBot: true });
@@ -412,14 +427,31 @@
             btn.style.display = 'inline-block';
             document.getElementById('spinner-instruction').innerHTML = "À toi de jouer !";
         }
-        const alpha = "ABCDEFGHIJKLMNOPQRSTV"; let i = 0;
+        
+        const baseAlpha = "ABCDEFGHIJKLMNOPQRSTV";
+        const availableAlpha = baseAlpha.split('').filter(l => !state.usedLetters.includes(l)).join('') || baseAlpha;
+        
+        let i = 0;
         if(state.spinnerTimer) clearInterval(state.spinnerTimer);
-        state.spinnerTimer = setInterval(() => { document.getElementById('letter-spinner').innerText = alpha[i % alpha.length]; i++; }, 60);
+        state.spinnerTimer = setInterval(() => { 
+            document.getElementById('letter-spinner').innerText = availableAlpha[i % availableAlpha.length]; 
+            i++; 
+        }, 60);
     }
 
     window.stopSpinner = () => {
-        if(state.isMulti) update(ref(db, `rooms/${state.roomId}`), { status: 'playing', currentLetter: document.getElementById('letter-spinner').innerText });
-        else { state.letter = document.getElementById('letter-spinner').innerText; stopSpinnerUI(); }
+        const finalLetter = document.getElementById('letter-spinner').innerText;
+        state.usedLetters.push(finalLetter);
+        if(state.isMulti) {
+            update(ref(db, `rooms/${state.roomId}`), { 
+                status: 'playing', 
+                currentLetter: finalLetter,
+                usedLetters: state.usedLetters
+            });
+        } else { 
+            state.letter = finalLetter; 
+            stopSpinnerUI(); 
+        }
     };
 
     function stopSpinnerUI() {
@@ -427,7 +459,7 @@
         document.getElementById('letter-spinner').innerText = state.letter;
         if(state.gameStartTimeout) clearTimeout(state.gameStartTimeout);
         state.gameStartTimeout = setTimeout(() => {
-            if (state.currentStatus !== 'playing') return;
+            if (state.currentStatus !== 'playing' && state.isMulti) return;
             document.getElementById('info-letter').innerText = state.letter;
             document.getElementById('info-round').innerText = state.currentRound;
             document.getElementById('info-total-rounds').innerText = state.totalRounds;
@@ -443,7 +475,16 @@
 
     function startBotsSolo() {
         state.players.forEach(p => {
-            if(p.isBot) p.botTimer = setTimeout(() => { if(document.getElementById('screen-game').classList.contains('active')) triggerFinishSolo(); }, 20000 + Math.random() * 10000);
+            if(p.isBot) {
+                let time = 25000;
+                if(state.botDifficulty === 'easy') time = 35000 + Math.random() * 10000;
+                else if(state.botDifficulty === 'medium') time = 20000 + Math.random() * 10000;
+                else if(state.botDifficulty === 'hard') time = 12000 + Math.random() * 5000;
+                
+                p.botTimer = setTimeout(() => { 
+                    if(document.getElementById('screen-game').classList.contains('active')) triggerFinishSolo(); 
+                }, time);
+            }
         });
     }
 
@@ -471,14 +512,17 @@
             if(!p.isBot) p.answers = state.activeCats.map((_, i) => document.getElementById('in-'+i).value.trim());
             else p.answers = state.activeCats.map(c => {
                 const list = BANK[c] ? BANK[c].filter(w => w.toUpperCase().startsWith(state.letter)) : [];
-                return (list.length > 0 && Math.random() > 0.3) ? list[Math.floor(Math.random()*list.length)] : "";
+                let proba = 0.5;
+                if(state.botDifficulty === 'easy') proba = 0.3;
+                else if(state.botDifficulty === 'medium') proba = 0.7;
+                else if(state.botDifficulty === 'hard') proba = 0.95;
+                return (list.length > 0 && Math.random() < proba) ? list[Math.floor(Math.random()*list.length)] : "";
             });
             p.statusArr = p.answers.map(w => (w && w.toUpperCase().startsWith(state.letter)) ? 1 : 0);
         });
         renderArbitrageTableSolo();
     }
 
-    // FONCTION DE COMPARAISON PRÉCISE (Espaces, Accents, Partielle comme orange foncé)
     function areWordsIdentical(w1, w2) {
         if (!w1 || !w2) return false;
         const normalize = (s) => s.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -611,7 +655,10 @@
             });
         } else if (!state.isMulti) {
             state.players.forEach((p, i) => p.score += state.tempSoloScores[i]);
-            if(state.currentRound < state.totalRounds) { state.currentRound++; startSpinnerUI('P1', 'Vous'); } 
+            if(state.currentRound < state.totalRounds) { 
+                state.currentRound++; 
+                startSpinnerUI('P1', 'Vous'); 
+            } 
             else showFinalRankingSolo();
         }
     };
@@ -622,7 +669,7 @@
             const roomRef = ref(db, `rooms/${state.roomId}`);
             get(roomRef).then((snap) => {
                 const data = snap.val();
-                let updates = { status: 'lobby', round: 1, currentLetter: null };
+                let updates = { status: 'lobby', round: 1, currentLetter: null, usedLetters: [] };
                 Object.keys(data.players).forEach(id => {
                     updates[`players/${id}/score`] = 0;
                     updates[`players/${id}/answers`] = null;
