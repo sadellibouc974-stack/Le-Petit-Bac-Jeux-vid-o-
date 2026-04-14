@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Le Petit Bac - Édition Ultime</title>
+    <title>Le Petit Bac - Made by Fall</title>
     <style>
         :root {
             --primary: #6C5CE7; --primary-hover: #5849c4; 
@@ -249,8 +249,8 @@
         playerId: "P_" + Math.random().toString(36).substr(2, 9),
         playerName: "Joueur",
         players: [], currentRound: 1, totalRounds: 3, letter: '', 
-        activeCats: [], spinnerTimer: null, botTimers: [],
-        botDifficulty: 'medium', hasSubmitted: false
+        activeCats: [], spinnerTimer: null, gameStartTimeout: null,
+        botDifficulty: 'medium', hasSubmitted: false, currentStatus: 'lobby'
     };
 
     window.showScreen = (id) => {
@@ -308,12 +308,7 @@
         get(ref(db, `rooms/${id}`)).then((snapshot) => {
             if(snapshot.exists()) {
                 const data = snapshot.val();
-                
-                // --- MODIFICATION ICI : On autorise le join si status 'lobby' OU 'setup' ---
-                if (data.status !== 'lobby' && data.status !== 'setup') {
-                    return alert("Désolé, la partie est déjà lancée !");
-                }
-                
+                if (data.status !== 'lobby' && data.status !== 'setup') return alert("Désolé, la partie est déjà lancée !");
                 state.roomId = id; state.isHost = false;
                 state.playerName = prompt("Ton pseudo :") || "Joueur";
                 update(ref(db, `rooms/${state.roomId}/players/${state.playerId}`), { name: state.playerName, score: 0 });
@@ -329,10 +324,13 @@
     function initMultiplayerListeners() {
         onValue(ref(db, `rooms/${state.roomId}`), (snapshot) => {
             const data = snapshot.val(); if(!data) return;
+            state.currentStatus = data.status; // Stockage crucial du statut actuel
+
             if(data.players) {
                 const list = document.getElementById('player-list');
                 list.innerHTML = Object.entries(data.players).map(([id, p]) => `<li>${p.name} ${id === data.hostId ? '<span class="host-badge">Hôte</span>' : ''}</li>`).join('');
             }
+
             if(data.status === 'lobby') showScreen('screen-lobby');
             else if (data.status === 'setup' && !state.isHost) {
                 document.getElementById('setup-controls').style.display = 'none';
@@ -345,11 +343,16 @@
             } 
             else if (data.status === 'playing') { state.letter = data.currentLetter; stopSpinnerUI(); } 
             else if (data.status === 'arbitrage') {
+                if(state.gameStartTimeout) clearTimeout(state.gameStartTimeout); // Annulation du timer de transition
                 if(!state.hasSubmitted) forceSubmitWords(); 
                 state.multiPlayersData = data.players;
                 renderArbitrageTableMulti(data.players);
             }
-            else if (data.status === 'final') { state.multiPlayersData = data.players; showFinalRankingMulti(data.players); }
+            else if (data.status === 'final') { 
+                if(state.gameStartTimeout) clearTimeout(state.gameStartTimeout);
+                state.multiPlayersData = data.players; 
+                showFinalRankingMulti(data.players); 
+            }
         });
     }
 
@@ -405,7 +408,13 @@
     function stopSpinnerUI() {
         clearInterval(state.spinnerTimer);
         document.getElementById('letter-spinner').innerText = state.letter;
-        setTimeout(() => {
+        
+        if(state.gameStartTimeout) clearTimeout(state.gameStartTimeout);
+        
+        state.gameStartTimeout = setTimeout(() => {
+            // SECURITÉ : Si le statut a déjà changé en arbitrage, on n'affiche pas l'écran de jeu
+            if (state.currentStatus !== 'playing') return;
+
             document.getElementById('info-letter').innerText = state.letter;
             document.getElementById('info-round').innerText = state.currentRound;
             document.getElementById('info-total-rounds').innerText = state.totalRounds;
@@ -413,7 +422,8 @@
             area.innerHTML = state.activeCats.map((c, i) => `
                 <div class="category-item"><label>${c}</label><input type="text" id="in-${i}" autocomplete="off"></div>
             `).join('');
-            showScreen('screen-game'); state.hasSubmitted = false;
+            showScreen('screen-game'); 
+            state.hasSubmitted = false;
             if(!state.isMulti) startBotsSolo();
         }, 800);
     }
@@ -435,7 +445,10 @@
     async function forceSubmitWords() {
         if(state.hasSubmitted) return;
         state.hasSubmitted = true;
-        const answers = state.activeCats.map((_, i) => document.getElementById('in-'+i).value.trim());
+        const answers = state.activeCats.map((_, i) => {
+            const el = document.getElementById('in-'+i);
+            return el ? el.value.trim() : "";
+        });
         const statusArr = answers.map(w => (w && w.toUpperCase().startsWith(state.letter)) ? 1 : 0);
         return update(ref(db, `rooms/${state.roomId}/players/${state.playerId}`), { answers, statusArr });
     }
@@ -556,8 +569,9 @@
             });
             update(ref(db), updates).then(() => {
                 if(state.currentRound < state.totalRounds) {
-                    const randomId = Object.keys(state.multiPlayersData)[0];
-                    update(ref(db, `rooms/${state.roomId}`), { status: 'spinning', round: state.currentRound + 1, spinnerPlayerId: randomId });
+                    const pIds = Object.keys(state.multiPlayersData);
+                    const nextSpinner = pIds[state.currentRound % pIds.length];
+                    update(ref(db, `rooms/${state.roomId}`), { status: 'spinning', round: state.currentRound + 1, spinnerPlayerId: nextSpinner });
                 } else update(ref(db, `rooms/${state.roomId}`), { status: 'final' });
             });
         } else if (!state.isMulti) {
@@ -570,10 +584,9 @@
     window.playAgain = () => {
         if(state.isMulti) {
             if(!state.isHost) return;
-            // --- REPASSAGE EN 'lobby' : Re-permet de rejoindre ---
             let updates = { status: 'lobby', round: 1 };
-            Object.keys(state.multiPlayersData).forEach(id => { updates[`players/${id}/score`] = 0; });
-            update(ref(db, `rooms/${state.roomId}`), updates);
+            Object.keys(state.multiPlayersData).forEach(id => { updates[`rooms/${state.roomId}/players/${id}/score`] = 0; });
+            update(ref(db), updates);
         } else location.reload();
     };
 
