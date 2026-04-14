@@ -180,9 +180,9 @@
                     </select>
                     <label style="margin-top:10px; display:block;">Difficulté :</label>
                     <select id="bot-difficulty">
-                        <option value="easy">Facile</option>
+                        <option value="easy">Facile (Prend son temps)</option>
                         <option value="medium" selected>Normal</option>
-                        <option value="hard">Difficile</option>
+                        <option value="hard">Difficile (Expert !)</option>
                     </select>
                 </div>
             </div>
@@ -503,7 +503,8 @@
             const el = document.getElementById('in-'+i);
             return el ? el.value.trim() : "";
         });
-        const statusArr = answers.map(w => (w && w.toUpperCase().startsWith(state.letter)) ? 1 : 0);
+        // Modifié ici : Tous les mots sont neutres (1) par défaut au lieu de 0
+        const statusArr = answers.map(() => 1);
         return update(ref(db, `rooms/${state.roomId}/players/${state.playerId}`), { answers, statusArr });
     }
 
@@ -545,8 +546,8 @@
             html += `<tr><td><strong>${cat}</strong></td>`;
             pKeys.forEach((pId) => {
                 const p = playersObj[pId];
-                const ans = (p.answers && p.answers[cIdx]) ? p.answers[cIdx] : '---';
-                const s = (p.statusArr && p.statusArr[cIdx] !== undefined) ? p.statusArr[cIdx] : 0;
+                const ans = (p.answers && p.answers[cIdx] !== undefined) ? p.answers[cIdx] : (pId === state.playerId ? document.getElementById('in-'+cIdx)?.value || '---' : '---');
+                const s = (p.statusArr && p.statusArr[cIdx] !== undefined) ? p.statusArr[cIdx] : 1; // Défaut à 1
                 const sClass = s === 0 ? 'status-invalid' : (s === 1 ? 'status-pending' : 'status-valid');
                 html += `<td><div class="word-cell ${sClass}"><span class="word-text">${ans}</span>
                     <div class="controls">
@@ -642,7 +643,7 @@
         if(state.isMulti && state.isHost) {
             let updates = {};
             Object.keys(state.multiPlayersData).forEach(id => {
-                updates[`rooms/${state.roomId}/players/${id}/score`] = state.multiPlayersData[id].score + state.tempMultiScores[id];
+                updates[`rooms/${state.roomId}/players/${id}/score`] = state.multiPlayersData[id].score + (state.tempMultiScores[id] || 0);
                 updates[`rooms/${state.roomId}/players/${id}/answers`] = null;
                 updates[`rooms/${state.roomId}/players/${id}/statusArr`] = null;
             });
