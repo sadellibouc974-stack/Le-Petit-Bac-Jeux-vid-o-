@@ -5,6 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Le Petit Bac ✦ Made by Fall</title>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- SCRIPT DE DÉTECTION DE PERFORMANCE -->
+    <script>
+        (function() {
+            try {
+                let isLowEnd = false;
+                // Critères TRÈS STRICTS : uniquement les appareils réellement en difficulté (ex: très vieux Androids)
+                if (navigator.deviceMemory && navigator.deviceMemory <= 2) {
+                    isLowEnd = true;
+                }
+                if (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 3) {
+                    isLowEnd = true;
+                }
+                
+                // Si l'appareil est détecté comme très faible, on ajoute la classe d'optimisation
+                if (isLowEnd) {
+                    document.documentElement.classList.add('low-end-device');
+                }
+            } catch(e) {}
+        })();
+    </script>
+
     <style>
 
 /* ═══════════════════════════════════════════════
@@ -1499,6 +1521,8 @@ tr:hover td { background:rgba(255,255,255,0.3); }
                 } else {
                     document.getElementById('setup-controls').style.display='block';
                     document.getElementById('setup-wait-msg').style.display='none';
+                    // On masque la section bots en multijoueur
+                    document.getElementById('bots-box').style.display='none';
                     renderSetupCats();
                 }
                 showScreen('screen-setup');
