@@ -104,7 +104,7 @@
    RESET & BASE
 ───────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html { height: 100%; scroll-behavior: smooth; }
+html { height: 100%; scroll-behavior: smooth; overscroll-behavior-y: none; }
 
 body {
     font-family: 'Outfit', system-ui, sans-serif;
@@ -115,6 +115,7 @@ body {
     color: var(--text-1);
     background: var(--bg-base);
     transition: background 0.5s ease, color 0.5s ease;
+    overscroll-behavior-y: none; /* Empeche le pull-to-refresh sur iOS Safari */
 }
 
 /* ─────────────────────────────────────────────
@@ -411,12 +412,15 @@ button:disabled { background:rgba(0,0,0,0.08); color:rgba(0,0,0,0.3); box-shadow
 .btn-secondary:hover:not(:disabled) { box-shadow:0 8px 28px rgba(249,115,22,0.42); }
 
 .btn-outline {
-    background:var(--glass-white-2); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
-    border:1.5px solid var(--glass-border-2); color:var(--text-2);
-    box-shadow:0 2px 8px rgba(0,0,0,0.06); margin-top:12px;
+    background-color: var(--glass-white-2); 
+    background-image: none !important; /* Fix for Safari linear-gradient bleeding */
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1.5px solid var(--glass-border-2); color: var(--text-2);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-top: 12px;
+    -webkit-transform: translateZ(0); transform: translateZ(0); /* Fix for Safari backdrop-filter glitch */
 }
 .btn-outline::before { display:none; }
-.btn-outline:hover:not(:disabled) { background:var(--glass-white); color:var(--text-1); box-shadow:0 4px 16px rgba(0,0,0,0.1); transform:translateY(-2px); }
+.btn-outline:hover:not(:disabled) { background-color: var(--glass-white); color: var(--text-1); box-shadow: 0 4px 16px rgba(0,0,0,0.1); transform: translateY(-2px) translateZ(0); -webkit-transform: translateY(-2px) translateZ(0); }
 
 .btn-danger {
     background:linear-gradient(135deg,#ef4444,#f87171);
@@ -598,7 +602,6 @@ tr:hover td { background:rgba(255,255,255,0.3); }
 ───────────────────────────────────────────── */
 #room-id-display { 
     font-family: 'Syne', sans-serif; 
-    font-variant-numeric: tabular-nums; 
     line-height: 1; 
     font-weight: 800; 
     font-size: 2.4rem; 
@@ -609,6 +612,7 @@ tr:hover td { background:rgba(255,255,255,0.3); }
     background-clip: text; 
     display: inline-block; 
     filter: drop-shadow(0 4px 12px rgba(124,92,252,0.3)); 
+    vertical-align: baseline; /* Fix alignement sur Safari */
 }
 #player-list { list-style:none; padding:0; display:flex; flex-direction:column; gap:8px; }
 #player-list li { padding:12px 18px; border-radius:100px; background:var(--glass-white-3); border:1.5px solid rgba(255,255,255,0.75); color:var(--text-1); font-weight:600; display:flex; align-items:center; gap:10px; box-shadow:inset 0 1px 0 rgba(255,255,255,0.8); transition:box-shadow 0.2s; }
