@@ -5,34 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Le Petit Bac ✦ Made by Fall</title>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- SCRIPT DE DÉTECTION DE PERFORMANCE -->
-    <script>
-        (function() {
-            try {
-                let isLowEnd = false;
-                // RAM < 4GB (API Chrome/Android)
-                if (navigator.deviceMemory && navigator.deviceMemory < 4) {
-                    isLowEnd = true;
-                }
-                // Cœurs CPU <= 4 (Vieux Androids, vieux iPhones)
-                if (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) {
-                    isLowEnd = true;
-                }
-                // Heuristique pour les vieux appareils iOS (iPhone 8 et antérieurs)
-                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-                if (isIOS && window.screen.height < 800) {
-                    isLowEnd = true;
-                }
-                
-                // Si l'appareil est peu performant, on ajoute une classe pour alléger le rendu
-                if (isLowEnd) {
-                    document.documentElement.classList.add('low-end-device');
-                }
-            } catch(e) {}
-        })();
-    </script>
-
     <style>
 
 /* ═══════════════════════════════════════════════
@@ -130,14 +102,14 @@
 
 /* ─────────────────────────────────────────────
    OPTIMISATIONS POUR APPAREILS PEU PERFORMANTS
-   (Désactive les effets lourds GPU sur la classe html.low-end-device)
+   (S'applique via le menu ou automatiquement)
 ───────────────────────────────────────────── */
 html.low-end-device * {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
 }
 
-/* Compenser la perte du verre dépoli en opacifiant un peu les fonds */
+/* Compenser la perte du verre dépoli en opacifiant un peu les fonds pour ces appareils */
 html.low-end-device {
     --glass-white:    rgba(255,255,255,0.95);
     --glass-white-2:  rgba(255,255,255,0.90);
@@ -149,17 +121,14 @@ html.low-end-device[data-dark="true"] {
     --glass-white-3:  rgba(25,18,60,0.98);
 }
 
-/* Désactiver le bruit SVG très gourmand */
+/* Désactiver le bruit SVG et figer l'arrière-plan pour ces appareils */
 html.low-end-device #bg-canvas::after {
     display: none !important;
 }
-
-/* Figer et simplifier l'arrière-plan animé */
 html.low-end-device .bg-orb {
     filter: none !important;
     animation: none !important;
 }
-
 html.low-end-device .modal-overlay {
     background: rgba(10,5,30,0.85);
 }
@@ -192,7 +161,6 @@ body {
 .bg-orb {
     position: absolute; border-radius: 50%; filter: blur(80px);
     opacity: 0.75; animation: bgFloat linear infinite;
-    will-change: transform; /* Optimisation CPU/GPU globale */
 }
 .bg-orb-1 { width:65vw; height:65vw; top:-20%; left:-15%; background: radial-gradient(circle,#c4b5fd,#a78bfa,transparent); animation-duration:30s; }
 .bg-orb-2 { width:55vw; height:55vw; bottom:-15%; right:-10%; background: radial-gradient(circle,#fda4af,#fb7185,transparent); animation-duration:24s; animation-direction:reverse; }
@@ -1015,10 +983,16 @@ tr:hover td { background:rgba(255,255,255,0.3); }
         </div>
 
         <div class="settings-section">
-            <div class="settings-section-title">Apparence</div>
-            <div class="toggle-row" onclick="toggleDark()">
+            <div class="settings-section-title">Apparence & Performances</div>
+            <div class="toggle-row" onclick="toggleDark()" style="margin-bottom: 10px;">
                 <span>🌙 Mode Sombre</span>
                 <div class="toggle-track" id="dark-toggle">
+                    <div class="toggle-thumb"></div>
+                </div>
+            </div>
+            <div class="toggle-row" onclick="togglePerformance()">
+                <span>⚡ Mode Performance</span>
+                <div class="toggle-track" id="perf-toggle">
                     <div class="toggle-thumb"></div>
                 </div>
             </div>
@@ -1362,13 +1336,14 @@ tr:hover td { background:rgba(255,255,255,0.3); }
         }
     });
 
-    /* ── THÈMES ── */
+    /* ── THÈMES & PERFORMANCES ── */
     window.setTheme = (btn, val) => {
         document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         document.documentElement.setAttribute('data-theme', val);
         localStorage.setItem('bac-theme', val);
     };
+    
     window.toggleDark = () => {
         const isDark = document.documentElement.getAttribute('data-dark') === 'true';
         const newVal = isDark ? 'false' : 'true';
@@ -1376,9 +1351,26 @@ tr:hover td { background:rgba(255,255,255,0.3); }
         document.getElementById('dark-toggle').classList.toggle('on', newVal === 'true');
         localStorage.setItem('bac-dark', newVal);
     };
+    
+    window.togglePerformance = () => {
+        const classList = document.documentElement.classList;
+        const isPerf = classList.contains('low-end-device');
+        const newVal = isPerf ? 'false' : 'true';
+        
+        if (newVal === 'true') {
+            classList.add('low-end-device');
+        } else {
+            classList.remove('low-end-device');
+        }
+        
+        document.getElementById('perf-toggle').classList.toggle('on', newVal === 'true');
+        localStorage.setItem('bac-perf', newVal);
+    };
+    
     window.openSettings = () => {
         document.getElementById('modal-settings').classList.add('open');
     };
+    
     window.closeSettings = () => {
         document.getElementById('modal-settings').classList.remove('open');
     };
@@ -1392,9 +1384,30 @@ tr:hover td { background:rgba(255,255,255,0.3); }
     (function restorePrefs() {
         const t = localStorage.getItem('bac-theme') || '';
         const d = localStorage.getItem('bac-dark') || 'false';
+        let p = localStorage.getItem('bac-perf');
+        
+        // Auto-détection si aucune préférence n'a été sauvegardée pour le mode performance
+        if (p === null) {
+            let isLowEnd = false;
+            try {
+                if (navigator.deviceMemory && navigator.deviceMemory <= 2) isLowEnd = true;
+                if (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 3) isLowEnd = true;
+            } catch(e) {}
+            p = isLowEnd ? 'true' : 'false';
+        }
+
         document.documentElement.setAttribute('data-theme', t);
         document.documentElement.setAttribute('data-dark', d);
         document.getElementById('dark-toggle').classList.toggle('on', d === 'true');
+        
+        if (p === 'true') {
+            document.documentElement.classList.add('low-end-device');
+            document.getElementById('perf-toggle').classList.add('on');
+        } else {
+            document.documentElement.classList.remove('low-end-device');
+            document.getElementById('perf-toggle').classList.remove('on');
+        }
+
         document.querySelectorAll('.theme-btn').forEach(b => {
             b.classList.toggle('active', b.dataset.themeVal === t);
         });
