@@ -425,7 +425,7 @@ button:disabled { background:rgba(0,0,0,0.08); color:rgba(0,0,0,0.3); box-shadow
 .btn-danger {
     background:linear-gradient(135deg,#ef4444,#f87171);
     box-shadow:0 4px 20px rgba(239,68,68,0.32), inset 0 1px 0 rgba(255,255,255,0.3);
-    color:#fff;
+    color:#fff; margin-top: 10px;
 }
 .btn-danger:hover:not(:disabled) { box-shadow:0 8px 28px rgba(239,68,68,0.45); }
 
@@ -485,8 +485,36 @@ label { display:block; font-size:0.8rem; font-weight:700; color:var(--text-3); t
 }
 .checkbox-item:hover { border-color:rgba(124,92,252,0.4); color:var(--accent); box-shadow:0 2px 10px rgba(124,92,252,0.12), inset 0 1px 0 rgba(255,255,255,0.8); }
 .checkbox-item.checked { background:linear-gradient(135deg, var(--accent), var(--accent-2)); border-color:transparent; color:#fff; box-shadow:0 4px 16px rgba(124,92,252,0.32), inset 0 1px 0 rgba(255,255,255,0.28); }
-.checkbox-item input { margin-right:8px; accent-color:var(--accent); width:15px; height:15px; flex-shrink:0; }
-.checkbox-item.checked input { accent-color:#fff; }
+
+.checkbox-item input[type="checkbox"] {
+    -webkit-appearance: none;
+    appearance: none;
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--glass-border-2);
+    border-radius: 4px;
+    background-color: var(--glass-white);
+    flex-shrink: 0;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.checkbox-item.checked input[type="checkbox"] {
+    background-color: #fff;
+    border-color: #fff;
+}
+.checkbox-item.checked input[type="checkbox"]::after {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: 5px;
+    width: 4px;
+    height: 9px;
+    border: solid var(--accent);
+    border-width: 0 2.5px 2.5px 0;
+    transform: rotate(45deg);
+}
 
 /* ─────────────────────────────────────────────
    LETTER SPINNER
@@ -613,6 +641,7 @@ tr:hover td { background:rgba(255,255,255,0.3); }
     display: inline-block; 
     filter: drop-shadow(0 4px 12px rgba(124,92,252,0.3)); 
     vertical-align: baseline; /* Fix alignement sur Safari */
+    font-variant-numeric: lining-nums tabular-nums;
 }
 #player-list { list-style:none; padding:0; display:flex; flex-direction:column; gap:8px; }
 #player-list li { padding:12px 18px; border-radius:100px; background:var(--glass-white-3); border:1.5px solid rgba(255,255,255,0.75); color:var(--text-1); font-weight:600; display:flex; align-items:center; gap:10px; box-shadow:inset 0 1px 0 rgba(255,255,255,0.8); transition:box-shadow 0.2s; }
@@ -630,6 +659,7 @@ tr:hover td { background:rgba(255,255,255,0.3); }
     text-transform:uppercase; 
     border-radius:var(--radius-xs); 
     padding:14px; 
+    font-variant-numeric: lining-nums tabular-nums;
 }
 .multi-cards .glass-inner input#join-id::placeholder { 
     font-family:'Outfit',sans-serif; 
@@ -869,7 +899,7 @@ tr:hover td { background:rgba(255,255,255,0.3); }
         <div class="modal-desc">Ta progression sera perdue et tu reviendras à l'accueil.</div>
         <div class="modal-actions">
             <button class="btn-outline" style="margin-top:0;" onclick="closeQuitModal()">Rester ✦</button>
-            <button class="btn-danger" onclick="confirmQuit()">Quitter</button>
+            <button class="btn-danger" style="margin-top:0;" onclick="confirmQuit()">Quitter</button>
         </div>
     </div>
 </div>
@@ -989,7 +1019,7 @@ tr:hover td { background:rgba(255,255,255,0.3); }
         </div>
         <div id="lobby-wait-msg">En attente de l'hôte...</div>
         <button class="btn-success" id="btn-host-start" style="display:none;width:100%;margin-top:16px;" onclick="hostStartSetup()">Configurer la partie ➡️</button>
-        <button class="btn-outline" style="width:100%;" onclick="askQuit()">Quitter</button>
+        <button class="btn-danger" style="width:100%;margin-top:10px;" onclick="askQuit()">Quitter</button>
     </div>
 
     <!-- ══ SETUP ══ -->
@@ -1076,7 +1106,7 @@ tr:hover td { background:rgba(255,255,255,0.3); }
         <div class="section-gap"></div>
         <div class="table-container"><table id="final-rank-table"></table></div>
         <button class="btn-success" id="btn-play-again" style="margin-top:26px;width:100%;" onclick="playAgain()">🔄 Rejouer une partie</button>
-        <button class="btn-outline" style="width:100%;" onclick="askQuit()">Quitter</button>
+        <button class="btn-danger" style="width:100%;margin-top:10px;" onclick="askQuit()">Quitter</button>
     </div>
 
 </div><!-- /.glass-card -->
@@ -1124,18 +1154,28 @@ tr:hover td { background:rgba(255,255,255,0.3); }
         lastPlayerList: [], usedLetters: []
     };
 
-    /* ── AVERTISSEMENT RECHARGEMENT ── */
-    window.addEventListener('beforeunload', (e) => {
+    /* ── AVERTISSEMENT RECHARGEMENT ET INTERCEPTION RETOUR (Spécial iOS/Safari) ── */
+    window.onbeforeunload = function(e) {
         const activeScreen = document.querySelector('.screen.active');
-        if (activeScreen) {
-            const id = activeScreen.id;
-            // On vérifie tous les écrans "en partie" (salon, setup, tirage, jeu, arbitrage...)
-            if (id !== 'screen-menu' && id !== 'screen-multi-choice' && id !== 'screen-final') {
-                e.preventDefault();
-                // Avertissement de sécurité natif du navigateur
-                e.returnValue = 'Es-tu sûr de vouloir quitter la partie ? Ta progression sera perdue.';
-                return e.returnValue;
-            }
+        if (activeScreen && activeScreen.id !== 'screen-menu' && activeScreen.id !== 'screen-multi-choice' && activeScreen.id !== 'screen-final') {
+            const msg = 'Es-tu sûr de vouloir quitter la partie ? Ta progression sera perdue.';
+            e.preventDefault();
+            e.returnValue = msg;
+            return msg;
+        }
+    };
+
+    // Pousser un état dans l'historique pour empêcher le recul accidentel (swipe gauche iPhone)
+    window.addEventListener("popstate", (e) => {
+        const activeScreen = document.querySelector('.screen.active');
+        if (activeScreen && activeScreen.id !== 'screen-menu' && activeScreen.id !== 'screen-multi-choice' && activeScreen.id !== 'screen-final') {
+            askQuit(); // Affiche la modale au lieu de quitter
+            window.history.pushState({ inGame: true }, ""); // Remet l'état pour empêcher le recul physique
+        } else {
+            // Si on est dans les menus, on a le droit de reculer/gérer la navigation
+            window.history.pushState({ inGame: false }, "");
+            if (activeScreen && activeScreen.id === 'screen-setup') goBackFromSetup();
+            else if (activeScreen && activeScreen.id === 'screen-multi-choice') showScreen('screen-menu');
         }
     });
 
@@ -1143,8 +1183,6 @@ tr:hover td { background:rgba(255,255,255,0.3); }
     window.addEventListener('unload', () => {
         const activeScreen = document.querySelector('.screen.active');
         if (activeScreen && activeScreen.id !== 'screen-menu' && activeScreen.id !== 'screen-multi-choice' && activeScreen.id !== 'screen-final') {
-            // Si le joueur choisit effectivement de recharger, on supprime la session.
-            // Ainsi, au rafraîchissement, il atterrira directement sur la page d'accueil sans popup de retour.
             clearSession();
         }
     });
@@ -1211,6 +1249,9 @@ tr:hover td { background:rgba(255,255,255,0.3); }
     };
 
     window.addEventListener('load', () => {
+        // Initialiser l'état de l'historique pour notre prévention de retour iOS
+        window.history.pushState({ inGame: false }, "");
+
         const multiSession = localStorage.getItem('bac-session-multi');
         const soloSession = localStorage.getItem('bac-session-solo');
 
